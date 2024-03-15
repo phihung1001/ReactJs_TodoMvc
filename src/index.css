@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #f0e3e3;
+  min-width: 230px;
+  max-width: 550px;
+  line-height: 1.4em;
+  margin: 0 auto;
+  
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
