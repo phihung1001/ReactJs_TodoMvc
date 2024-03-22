@@ -1,36 +1,62 @@
-import React, { memo } from 'react';
+import React, { useMemo } from 'react';
 
-const Footer = memo((props) => {
+function Footer(props) {
+    const filterBtns =[
+        {
+            title : 'All',
+            isActived :true,
+            Onclick : () => {
+            },
+            link: ''
+        },
+        {
+            title : 'Actived',
+            isActived :false,
+            Onclick : () => {
+            },
+            link: 'active'
+        },
+        {
+            title : 'Completed',
+            isActived :false,
+            Onclick : () => {
+            },
+            link: 'completed'
+        }
+    ]
     return (
         <footer className="footer">
             <span className="todo-count">
-                <strong>3</strong>
-                <span> </span>
-                <span>items </span>
-                <span> left</span>
+               <strong>2</strong>
+               <span></span>
+               <span>items</span>
+               <span>left</span>
             </span>
-            <ul className="filters">
-                <li>
-                    <a>
-                        All
-                    </a>
-                </li>
-                <span></span>
-                <li>
-                    <a>
-                        Active
-                    </a>
-                </li>
-                <span></span>
-                <li>
-                    <a>
-                        Completed
-                    </a>
-                </li>
+            <ul className='filters'>
+                {
+                    filterBtns.map(btn =>(
+                        <FilterBtn key={`btn${btn.title}`}{...btn} />
+                    ))
+                }
             </ul>
-          
+            <button className="clear-completed"> Clear completed</button>
         </footer>
     )
-})
+}
 
-export default Footer
+function FilterBtn(props) {
+    const { title, onClick, link, isActived } = props
+    return (
+        <>
+          <li>
+            <a href={`#/${props.link}`} className={`${props.isActived ? 'selected': ''}`}
+            onClick={props.onClick}
+            >
+                {props.title}
+            </a>
+
+          </li>
+        </>
+    )
+}
+export default Footer;
