@@ -1,10 +1,18 @@
+import { render } from '@testing-library/react';
 import './Header.css';
 import React from "react";
 import { useMemo, useState } from 'react';
-function Header(props)  {
-  const { addTodo } = props
-  const [name, setName] = useState('');
-
+class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: ''
+    };
+  }
+  
+  render() {
+  const { addTodo ,isCheckAll } = this.props
+  const { name } = this.state
   const handleSubmit = (e = {}) => {
     //e.preventDefault();
      if(e.key === 'Enter' && name)  {
@@ -15,7 +23,7 @@ function Header(props)  {
         name,
         isCheck: false
       })
-      setName('')
+      this.setState({name:''})
     }
 
   }
@@ -26,11 +34,13 @@ function Header(props)  {
                  className="new-todo" 
                  placeholder="What needs to be done?"
                  value={name}
-                 onChange={(e) => setName(e.target.value)}
+                 onChange={(e) => this.setState({name : e.target.value})}
                  onKeyDown={(e) => handleSubmit(e)}
+                 checked={isCheckAll}
           />
        </header>
-  );
+  )
+  }
 }
 
 export default Header;

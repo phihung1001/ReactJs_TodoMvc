@@ -1,62 +1,74 @@
 import React, { useMemo } from 'react';
+import './Footer.css'
+class Footer extends React.Component {
 
-function Footer(props) {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+    const { status, setStatusFilter , clearCompleted , numOfTodoLeft} = this.props
     const filterBtns =[
         {
             title : 'All',
-            isActived :true,
-            Onclick : () => {
-            },
+            isActived : status === 'ALL',
+            onClick : () => setStatusFilter('ALL'),
             link: ''
         },
         {
-            title : 'Actived',
-            isActived :false,
-            Onclick : () => {
-            },
+            title : 'Active',
+            isActived :status ==='ACTIVE',
+            onClick : () => setStatusFilter('ACTIVE'),
             link: 'active'
         },
         {
             title : 'Completed',
-            isActived :false,
-            Onclick : () => {
-            },
+            isActived :status ==='COMPLETED',
+            onClick : () => setStatusFilter('COMPLETED'),
             link: 'completed'
         }
     ]
     return (
         <footer className="footer">
             <span className="todo-count">
-               <strong>2</strong>
+               <strong>{numOfTodoLeft}</strong>
                <span></span>
-               <span>items</span>
+               <span> {numOfTodoLeft<=1 ? "item" : 'items'} </span>
                <span>left</span>
             </span>
             <ul className='filters'>
                 {
                     filterBtns.map(btn =>(
-                        <FilterBtn key={`btn${btn.title}`}{...btn} />
+                        <FilterBtn key={`btn${btn.title}`} {...btn} />
                     ))
                 }
             </ul>
-            <button className="clear-completed"> Clear completed</button>
+            <button 
+                className="clear-completed"
+                onClick={clearCompleted}
+            > 
+                Clear completed
+            </button>
         </footer>
     )
+    }
 }
 
-function FilterBtn(props) {
-    const { title, onClick, link, isActived } = props
+class FilterBtn extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+    const { title, onClick, link, isActived } = this.props
     return (
-        <>
+        <>                       
           <li>
-            <a href={`#/${props.link}`} className={`${props.isActived ? 'selected': ''}`}
-            onClick={props.onClick}
-            >
-                {props.title}
+            <a href={`/#${link}`} className={`${isActived ? 'selected': ''}`}
+            onClick={onClick} >
+                {title} 
             </a>
-
           </li>
         </>
     )
+    }
 }
 export default Footer;

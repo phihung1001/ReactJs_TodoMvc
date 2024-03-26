@@ -5,64 +5,116 @@ import Footer from './Components/footer/Footer';
 import Header from './Components/header/Header';
 import { useMemo, useState } from "react";
 
+const isNotCheckAll = (todos = []) => todos.find(todo => !todo.isCheck)
+
+const filterBystatus = (todos = [], status='', id='') => {
+  switch (status){
+       case 'ACTIVE' : return todos.filter(todo => !todo.isCheck)
+       case 'COMPLETED' : return todos.filter(todo => todo.isCheck)
+       case 'REMOVE': return todos.filter(todo => todo.id !=id)
+       default : return todos
+  }
+}
 class App extends PureComponent {
   state = {
     todoList: [ 
     ],
-    todoEditId:'' 
+    todoEditId:'',
+    isCheckAll: false,
+    status: 'ALL',
   }
 
+  componentWillMount() {
+    this.setState({
+      isCheckAll : !isNotCheckAll(this.state.todoList)
+    })
+  }
 
   addTodo = (todo = {} ) => {
     // console.log('todo', todo)
+    // console.log(todoList.length());
+    
      this.setState(preState => {
        return { todoList: [...preState.todoList, todo] }
      })
   }
-  getTodoEditId = (idid ='') => {
+  
+  getTodoEditId = (id='') => {
     this.setState({
-        todoEditId : idid
+        todoEditId : id
     })
   }
 
   onEditTodo= (todo = {}, index =-1) => {
     if(index >=0) {
-      const {todoList: list } = this.state
-      list.splice(index,1,todo)
+      const {todoList} = this.state
+      todoList.splice(index,1,todo)
       this.setState({
-        todoList:list,
         todoEditId:''
       })
     }
   }
 
   markCompleted = (id = '') => {
+    const {todoList} = this.state
+    const updatedList = todoList.map(todo =>  todo.id ===id ? ({...todo, isCheck: !todo.isCheck}) : todo )
     this.setState(preState => {
-      return { todoList: preState.todoList.map(todo => 
-          todo.id ===id ?
-          ({...todo, isCheck: !todo.isCheck})
-          : todo
-        )
+      return { 
+        todoList: updatedList,
+        isCheckAll : !isNotCheckAll(updatedList) 
       }
 
   })
   }
-  
+
+  checkAllTodo = () => {
+    const { todoList, isCheckAll } = this.state
+    this.setState(preState => ({
+      todoList : todoList.map(todo => ({...todo ,isCheck:!isCheckAll})),
+      isCheckAll: !preState.isCheckAll
+    }))
+  }
+
+  setStatusFilter = (status ='') =>{
+    this.setState({
+      status 
+    })
+  }
+  clearCompleted = () => {
+    const { todoList } = this.state
+    this.setState({
+      todoList: filterBystatus(todoList,'ACTIVE')
+    })
+  }
+  removeTodo = ( id ='') => {
+     const { todoList } = this.state 
+     this.setState ({
+        todoList : filterBystatus(todoList,'REMOVE',id)
+     })
+  }
   render() {
-    const { todoList,todoEditId , removeTodo} = this.state
+    const { todoList,todoEditId , isCheckAll, status ,numOfTodoLeft} = this.state
     return (
     <>
       <div className="todoapp">
-         <Header  addTodo = {this.addTodo}/>
+        
+         <Header  addTodo = {this.addTodo} isCheckAll ={isCheckAll}/>
          <TodoList 
-             todoList={todoList}
+             todoList={filterBystatus(todoList,status)}
              todoEditId ={todoEditId}
              getTodoEditId = {this.getTodoEditId}
              onEditTodo = {this.onEditTodo}
              markCompleted ={this.markCompleted}
-             removeTodo= {removeTodo}
+             isCheckAll ={isCheckAll}
+             checkAllTodo={this.checkAllTodo}
+             removeTodo = {this.removeTodo}
           />
-         <Footer/>
+         <Footer
+            setStatusFilter={this.setStatusFilter}
+            status={status}
+            clearCompleted = {this.clearCompleted}
+            numOfTodoLeft = {filterBystatus(todoList,'ACTIVE').length}
+         />
         </div>
     </> 
     )}

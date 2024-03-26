@@ -1,18 +1,26 @@
 import './Todo.css';
 import React from "react";
 import { useMemo, useState } from 'react';
-function Todo(props) {
-  const {todo,getTodoEditId,todoEditId,onEditTodo, index, markCompleted} = props;
+class Todo extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: ''
+    };
+  }
+  render() {
+  const {todo,getTodoEditId,todoEditId,onEditTodo, index, markCompleted, removeTodo} = this.props;
   const  isEdit= todoEditId===todo.id
-  const [name, setName] = useState(todo.name)
+  const { name } = this.state
   const editTodo = () => {
     onEditTodo({
-      ...todo, name
+      ...todo,name
     },index)
   }
   return (
     <>
-        <li  className={`${isEdit ? 'editing' : ''} ${todo.isCheck} ? 'completed' : '' `}>
+        <li  className={`${isEdit ? 'editing' : ''} ${todo.isCheck ? 'completed' : ''}`}>
           {!isEdit ?
             <div className='view'>
               <input className="toggle" 
@@ -20,15 +28,16 @@ function Todo(props) {
                      type="checkbox"
                      onChange ={() => markCompleted(todo.id)}
               />
-              <label onClick={() => getTodoEditId(todo.id)}> {todo.name} </label>
-              <button className='destroy'></button>
+              <label onDoubleClick={() => getTodoEditId(todo.id)}> {todo.name} </label>
+              <button className='destroy' onClick={ () => removeTodo(todo.id)}></button>
              </div> :
              <input className='edit' 
                     type='text' 
                     checked={todo.isCheck} 
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    onKeyDown={e =>{
+                    onChange={(e) => this.setState({name : e.target.value})}
+
+                    onKeyDown={(e) =>{
                       if(e.key ==='Enter'){
                         editTodo();
                       }}
@@ -39,6 +48,7 @@ function Todo(props) {
         </li>
     </>
   );
+  }
 }
 
 export default Todo;
