@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import './Footer.css'
 class Footer extends React.Component {
 
     constructor(props) {

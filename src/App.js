@@ -3,6 +3,9 @@ import './App.css';
 import TodoList from './Components/content/TodoList';
 import Footer from './Components/footer/Footer';
 import Header from './Components/header/Header';
+import Panigation from './Components/pagination/Pagination';
+import ReactPaginate from 'react-paginate';
+
 import { useMemo, useState } from "react";
 
 const isNotCheckAll = (todos = []) => todos.find(todo => !todo.isCheck)
@@ -17,8 +20,7 @@ const filterBystatus = (todos = [], status='', id='') => {
 }
 class App extends PureComponent {
   state = {
-    todoList: [ 
-    ],
+    todoList: [],
     todoEditId:'',
     isCheckAll: false,
     status: 'ALL',
@@ -30,10 +32,7 @@ class App extends PureComponent {
     })
   }
 
-  addTodo = (todo = {} ) => {
-    // console.log('todo', todo)
-    // console.log(todoList.length());
-    
+  addTodo = (todo = {} ) => {  
      this.setState(preState => {
        return { todoList: [...preState.todoList, todo] }
      })
@@ -114,6 +113,9 @@ class App extends PureComponent {
             status={status}
             clearCompleted = {this.clearCompleted}
             numOfTodoLeft = {filterBystatus(todoList,'ACTIVE').length}
+         />
+         <Panigation 
+             todoList={filterBystatus(todoList,status)}
          />
         </div>
     </> 
