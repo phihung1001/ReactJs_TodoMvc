@@ -18,12 +18,19 @@ const filterBystatus = (todos = [], status='', id='') => {
        default : return todos
   }
 }
+let viewList = [];
 class App extends PureComponent {
-  state = {
-    todoList: [],
-    todoEditId:'',
-    isCheckAll: false,
-    status: 'ALL',
+  constructor(props) {
+    super(props);
+    this.state = {
+      todoList: [],
+      isCheckAll: false,
+      status: 'ALL',
+      currentPage: 1,
+      recordsPerPage : 5
+    }
+    this.headerRef = React.createRef();
+    this.pageRef   = React.createRef();
   }
 
   componentWillMount() {
@@ -39,18 +46,22 @@ class App extends PureComponent {
   }
   
   getTodoEditId = (id='') => {
-    this.setState({
-        todoEditId : id
-    })
+      const {todoList} = this.state
+      const todo = todoList.find(todo => id === todo.id);
+      const name = todo.name;
+      this.headerRef.current.updateState(id,name);
   }
 
-  onEditTodo= (todo = {}, index =-1) => {
-    if(index >=0) {
+  onEditTodo= (todo = {}, id =-1) => {
+    if(id >=0) {
       const {todoList} = this.state
-      todoList.splice(index,1,todo)
-      this.setState({
-        todoEditId:''
-      })
+      const updatedList =todoList.map(item => item.id===id ? ({...item, name: todo.name}) : item)
+      
+     // console.log(todo)
+      //console.log(updatedList.map(item => item))
+      this.setState(preState => ({
+        todoList : updatedList
+      }))
     }
   }
 
@@ -91,16 +102,38 @@ class App extends PureComponent {
         todoList : filterBystatus(todoList,'REMOVE',id)
      })
   }
+
+  prePage = () => {
+    const { currentPage, recordsPerPage, todoList } = this.state;
+    if (currentPage !== 1) this.setState({ currentPage: currentPage - 1 });
+  }
+  nextPage = () => {
+    const { currentPage, recordsPerPage, todoList } = this.state;
+    const npage = Math.ceil(todoList.length / recordsPerPage)
+    if (currentPage !== npage) this.setState({ currentPage: currentPage + 1 });
+  }
+ 
+  changePage = (id) => {
+    this.setState({currentPage :id})
+ }
+
   render() {
-    const { todoList,todoEditId , isCheckAll, status ,numOfTodoLeft} = this.state
+    const { todoList,todoEditId , isCheckAll, status ,numOfTodoLeft,recordsPerPage,currentPage} = this.state
+    const npage = Math.ceil(todoList.length / recordsPerPage)
+    const numbers = [...Array(npage+1).keys()].slice(1)
     return (
     <>
       <div className="todoapp">
         
-         <Header  addTodo = {this.addTodo} isCheckAll ={isCheckAll}/>
+         <Header  
+             ref={this.headerRef}
+             addTodo = {this.addTodo} 
+             onEditTodo ={this.onEditTodo}
+             isCheckAll ={isCheckAll}
+          />
          <TodoList 
              todoList={filterBystatus(todoList,status)}
-             todoEditId ={todoEditId}
+             currentPage={currentPage}
              getTodoEditId = {this.getTodoEditId}
              onEditTodo = {this.onEditTodo}
              markCompleted ={this.markCompleted}
@@ -114,9 +147,13 @@ class App extends PureComponent {
             clearCompleted = {this.clearCompleted}
             numOfTodoLeft = {filterBystatus(todoList,'ACTIVE').length}
          />
-         <Panigation 
-             todoList={filterBystatus(todoList,status)}
-         />
+        <Panigation 
+             ref={this.pageRef}
+             prePage = {this.prePage}
+             nextPage = {this.nextPage}
+             changePage = {this.changePage}
+             numbers = {numbers}
+         /> 
         </div>
     </> 
     )}
