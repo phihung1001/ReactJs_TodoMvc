@@ -140,6 +140,7 @@ class App extends PureComponent {
              isCheckAll ={isCheckAll}
              checkAllTodo={this.checkAllTodo}
              removeTodo = {this.removeTodo}
+           
           />
          <Footer
             setStatusFilter={this.setStatusFilter}
@@ -147,13 +148,13 @@ class App extends PureComponent {
             clearCompleted = {this.clearCompleted}
             numOfTodoLeft = {filterBystatus(todoList,'ACTIVE').length}
          />
-        <Panigation 
+         <Panigation 
              ref={this.pageRef}
              prePage = {this.prePage}
              nextPage = {this.nextPage}
              changePage = {this.changePage}
              numbers = {numbers}
-         /> 
+         />   
         </div>
     </> 
     )}
