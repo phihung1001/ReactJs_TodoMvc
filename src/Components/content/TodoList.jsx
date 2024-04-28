@@ -74,5 +74,7 @@ class TodoList extends React.Component {
          </section>
   )}
 }
-
+Todolist.propTypes = {
+  todoList: propTypes.array.isRequired,
+};
 export default TodoList;

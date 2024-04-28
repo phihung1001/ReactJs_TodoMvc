@@ -5,6 +5,8 @@ import Footer from './Components/footer/Footer';
 import Header from './Components/header/Header';
 import Panigation from './Components/pagination/Pagination';
 import ReactPaginate from 'react-paginate';
+import { ThemeContext } from "../context/ThemeProvider";
+
 
 import { useMemo, useState } from "react";
 
@@ -20,6 +22,7 @@ const filterBystatus = (todos = [], status='', id='') => {
 }
 let viewList = [];
 class App extends PureComponent {
+  static contextType = ThemeContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -122,9 +125,10 @@ class App extends PureComponent {
     const npage = Math.ceil(todoList.length / recordsPerPage)
     const numbers = [...Array(npage+1).keys()].slice(1)
     return (
-    <>
+    <ThemeContext>
+      {(themes, changeTheme) => (
+      <div style={themes.themeLight}>
       <div className="todoapp">
-        
          <Header  
              ref={this.headerRef}
              addTodo = {this.addTodo} 
@@ -155,9 +159,21 @@ class App extends PureComponent {
              changePage = {this.changePage}
              numbers = {numbers}
          />   
+          <button onClick={changeTheme}>Change Theme</button>
         </div>
-    </> 
+      </div>
     )}
+    </ThemeContext> 
+  ); }
 }
+App.propTypes = {
+  todoList: PropTypes.array,
+  addTodo: PropTypes.func,
+  removeTodo: PropTypes.func,
+  onEditTodo: PropTypes.func,
+  getTodoEditId: PropTypes.func,
+  markCompleted: PropTypes.func,
+  setStatusFilter: PropTypes.func,
+};
 
 export default App;

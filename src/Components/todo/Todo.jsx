@@ -31,5 +31,9 @@ class Todo extends React.Component {
   );
   }
 }
+Todo.propTypes = {
+  name: PropTypes.string,
+  addTodo: PropTypes.func,
+};
 
 export default Todo;

@@ -70,4 +70,7 @@ class FilterBtn extends React.Component {
     )
     }
 }
+Footer.propTypes = {
+    filterBtns: propTypes.func.isRequired,
+  };
 export default Footer;

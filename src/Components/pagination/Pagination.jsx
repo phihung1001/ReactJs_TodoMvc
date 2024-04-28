@@ -33,5 +33,9 @@ class Panigation extends React.Component {
         </nav>
     )}
 }
+Panigation.propTypes = {
+    currentPage: PropTypes.numbers,
+    numbers: PropTypes.array,
+  };
 
 export default Panigation;

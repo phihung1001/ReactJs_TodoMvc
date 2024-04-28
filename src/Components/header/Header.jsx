@@ -71,5 +71,7 @@ class Header extends React.Component {
   )
   }
 }
-
+Header.propTypes = {
+  handleSubmit: propTypes.func,
+};
 export default Header;
