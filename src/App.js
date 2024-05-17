@@ -1,18 +1,19 @@
-import React, {PureComponent } from "react";
+import React, {useRef,lazy } from "react";
 import './App.css';
 import TodoList from './Components/content/TodoList';
 import Footer from './Components/footer/Footer';
 import Header from './Components/header/Header';
 import Panigation from './Components/pagination/Pagination';
 import ReactPaginate from 'react-paginate';
-import { ThemeContext } from "../context/ThemeProvider";
-
+import ThemeBtn from './Components/Theme-Btn';
+import { ThemeContext } from "./Context/Theme-Provider";
+import {  produce } from 'immer';
 
 import { useMemo, useState } from "react";
 
 const isNotCheckAll = (todos = []) => todos.find(todo => !todo.isCheck)
 
-const filterBystatus = (todos = [], status='', id='') => {
+export const filterBystatus = (todos = [], status='', id='') => {
   switch (status){
        case 'ACTIVE' : return todos.filter(todo => !todo.isCheck)
        case 'COMPLETED' : return todos.filter(todo => todo.isCheck)
@@ -20,160 +21,120 @@ const filterBystatus = (todos = [], status='', id='') => {
        default : return todos
   }
 }
-let viewList = [];
-class App extends PureComponent {
-  static contextType = ThemeContext;
-  constructor(props) {
-    super(props);
-    this.state = {
-      todoList: [],
-      isCheckAll: false,
-      status: 'ALL',
-      currentPage: 1,
-      recordsPerPage : 5
-    }
-    this.headerRef = React.createRef();
-    this.pageRef   = React.createRef();
+
+const App = () => {
+  const [todoList, setTodoList ] = useState([]);
+  const [isCheckAll, setIscheckAll ] = useState(false);
+  const [status, setStatus ] = useState('ALL');
+  // const [currentPage, setCurrentPage ] = useState(1);
+  // const recordsPerPage= 5 ;
+  // const npage = Math.ceil(todoList.length / recordsPerPage)
+  // const numbers = [...Array(npage+1).keys()].slice(1)
+  
+  const headerRef = useRef();
+  const pageRef = useRef();
+  
+
+  const componentWillMount = () => {
+      setIscheckAll(!isNotCheckAll(todoList) )
   }
 
-  componentWillMount() {
-    this.setState({
-      isCheckAll : !isNotCheckAll(this.state.todoList)
-    })
-  }
-
-  addTodo = (todo = {} ) => {  
-     this.setState(preState => {
-       return { todoList: [...preState.todoList, todo] }
-     })
+  const addTodo = (todo = {} ) => {  
+     setTodoList((preState) => 
+      produce(preState,(newState) => {
+         newState.push(todo);
+      })
+     )
   }
   
-  getTodoEditId = (id='') => {
-      const {todoList} = this.state
+  const getTodoEditId = (id) => {
       const todo = todoList.find(todo => id === todo.id);
       const name = todo.name;
-      this.headerRef.current.updateState(id,name);
+      headerRef.current.updateState(id,name);
   }
 
-  onEditTodo= (todo = {}, id =-1) => {
+  const onEditTodo= (todo = {}, id =-1) => {
     if(id >=0) {
-      const {todoList} = this.state
       const updatedList =todoList.map(item => item.id===id ? ({...item, name: todo.name}) : item)
       
      // console.log(todo)
       //console.log(updatedList.map(item => item))
-      this.setState(preState => ({
-        todoList : updatedList
-      }))
+      setTodoList(updatedList);
     }
   }
 
-  markCompleted = (id = '') => {
-    const {todoList} = this.state
+  const markCompleted = (id = '') => {
     const updatedList = todoList.map(todo =>  todo.id ===id ? ({...todo, isCheck: !todo.isCheck}) : todo )
-    this.setState(preState => {
-      return { 
-        todoList: updatedList,
-        isCheckAll : !isNotCheckAll(updatedList) 
-      }
-
-  })
+    setTodoList(updatedList);
+    setIscheckAll(!isNotCheckAll(updatedList) )
   }
 
-  checkAllTodo = () => {
-    const { todoList, isCheckAll } = this.state
-    this.setState(preState => ({
-      todoList : todoList.map(todo => ({...todo ,isCheck:!isCheckAll})),
-      isCheckAll: !preState.isCheckAll
-    }))
+  const checkAllTodo = () => {
+      const updatedList = todoList.map(todo => ({...todo ,isCheck:!isCheckAll})); 
+      setTodoList(updatedList)
+      setIscheckAll(!isCheckAll)
   }
 
-  setStatusFilter = (status ='') =>{
-    this.setState({
-      status 
-    })
-  }
-  clearCompleted = () => {
-    const { todoList } = this.state
-    this.setState({
-      todoList: filterBystatus(todoList,'ACTIVE')
-    })
-  }
-  removeTodo = ( id ='') => {
-     const { todoList } = this.state 
-     this.setState ({
-        todoList : filterBystatus(todoList,'REMOVE',id)
-     })
+  const setStatusFilter = (status ='') =>{
+    setStatus(status);
   }
 
-  prePage = () => {
-    const { currentPage, recordsPerPage, todoList } = this.state;
-    if (currentPage !== 1) this.setState({ currentPage: currentPage - 1 });
+  const clearCompleted = () => {
+    setTodoList(filterBystatus(todoList,'ACTIVE'))
   }
-  nextPage = () => {
-    const { currentPage, recordsPerPage, todoList } = this.state;
-    const npage = Math.ceil(todoList.length / recordsPerPage)
-    if (currentPage !== npage) this.setState({ currentPage: currentPage + 1 });
+  const removeTodo = ( id ='') => {
+    setTodoList(filterBystatus(todoList,'REMOVE',id))
   }
+
+//   const prePage = () => {
+//     if (currentPage !== 1) setCurrentPage(currentPage - 1);
+//   }
+//   const nextPage = () => {
+//     const npage = Math.ceil(todoList.length / recordsPerPage)
+//     if (currentPage !== npage) setCurrentPage(currentPage + 1);
+//   }
  
-  changePage = (id) => {
-    this.setState({currentPage :id})
- }
+//   const changePage = (id) => {
+//     setCurrentPage(id);
+//  }
 
-  render() {
-    const { todoList,todoEditId , isCheckAll, status ,numOfTodoLeft,recordsPerPage,currentPage} = this.state
-    const npage = Math.ceil(todoList.length / recordsPerPage)
-    const numbers = [...Array(npage+1).keys()].slice(1)
-    return (
-    <ThemeContext>
-      {(themes, changeTheme) => (
-      <div style={themes.themeLight}>
+  return (
+       
       <div className="todoapp">
+        <ThemeBtn/>
          <Header  
-             ref={this.headerRef}
-             addTodo = {this.addTodo} 
-             onEditTodo ={this.onEditTodo}
+             ref={headerRef}
+             addTodo = {addTodo} 
+             onEditTodo ={onEditTodo}
              isCheckAll ={isCheckAll}
           />
          <TodoList 
              todoList={filterBystatus(todoList,status)}
-             currentPage={currentPage}
-             getTodoEditId = {this.getTodoEditId}
-             onEditTodo = {this.onEditTodo}
-             markCompleted ={this.markCompleted}
+            //currentPage={currentPage}
+             getTodoEditId = {getTodoEditId}
+             onEditTodo = {onEditTodo}
+             markCompleted ={markCompleted}
              isCheckAll ={isCheckAll}
-             checkAllTodo={this.checkAllTodo}
-             removeTodo = {this.removeTodo}
+             checkAllTodo={checkAllTodo}
+             removeTodo = {removeTodo}
            
-          />
+          /> 
          <Footer
-            setStatusFilter={this.setStatusFilter}
+            setStatusFilter={setStatusFilter}
             status={status}
-            clearCompleted = {this.clearCompleted}
+            clearCompleted = {clearCompleted}
             numOfTodoLeft = {filterBystatus(todoList,'ACTIVE').length}
          />
-         <Panigation 
-             ref={this.pageRef}
-             prePage = {this.prePage}
-             nextPage = {this.nextPage}
-             changePage = {this.changePage}
+         {/* <Panigation 
+             ref={pageRef}
+             prePage = {prePage}
+             nextPage = {nextPage}
+             changePage = {changePage}
              numbers = {numbers}
-         />   
-          <button onClick={changeTheme}>Change Theme</button>
-        </div>
+         />    */}
       </div>
-    )}
-    </ThemeContext> 
-  ); }
-}
-App.propTypes = {
-  todoList: PropTypes.array,
-  addTodo: PropTypes.func,
-  removeTodo: PropTypes.func,
-  onEditTodo: PropTypes.func,
-  getTodoEditId: PropTypes.func,
-  markCompleted: PropTypes.func,
-  setStatusFilter: PropTypes.func,
-};
+    )
+ }
+
 
 export default App;

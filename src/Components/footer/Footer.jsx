@@ -1,11 +1,8 @@
-import React, { useMemo } from 'react';
-class Footer extends React.Component {
+import React, { useMemo, useContext } from 'react';
+import { ThemeContext  } from '../../Context/Theme-Provider';
 
-    constructor(props) {
-        super(props);
-    }
-    render() {
-    const { status, setStatusFilter , clearCompleted , numOfTodoLeft} = this.props
+const Footer = ({ status, setStatusFilter , clearCompleted , numOfTodoLeft} ) => {
+
     const filterBtns =[
         {
             title : 'All',
@@ -26,15 +23,17 @@ class Footer extends React.Component {
             link: 'completed'
         }
     ]
+    const { theme } = useContext(ThemeContext);
+
     return (
-        <footer className="footer">
-            <span className="todo-count">
+        <footer className="footer"  style={{ backgroundColor: theme.background, color: theme.foreground }}>
+            <span className="todo-count"  style={{ backgroundColor: theme.background, color: theme.foreground }}>
                <strong>{numOfTodoLeft}</strong>
                <span></span>
                <span> {numOfTodoLeft<=1 ? "item" : 'items'} </span>
                <span>left</span>
             </span>
-            <ul className='filters'>
+            <ul className='filters' >
                 {
                     filterBtns.map(btn =>(
                         <FilterBtn key={`btn${btn.title}`} {...btn} />
@@ -49,15 +48,10 @@ class Footer extends React.Component {
             </button>
         </footer>
     )
-    }
 }
 
-class FilterBtn extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-    const { title, onClick, link, isActived } = this.props
+
+const FilterBtn =({ title, onClick, link, isActived } ) => {
     return (
         <>                       
           <li>
@@ -68,9 +62,6 @@ class FilterBtn extends React.Component {
           </li>
         </>
     )
-    }
 }
-Footer.propTypes = {
-    filterBtns: propTypes.func.isRequired,
-  };
+
 export default Footer;

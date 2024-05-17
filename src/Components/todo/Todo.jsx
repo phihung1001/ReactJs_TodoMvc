@@ -1,39 +1,31 @@
 import './Todo.css';
 import React from "react";
-import { useMemo, useState } from 'react';
-class Todo extends React.Component {
+import { useState, useContext } from 'react';
+import { ThemeContext  } from '../../Context/Theme-Provider';
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: ''
-    };
-  }
-  render() {
-  const {todo,getTodoEditId,todoEditId,onEditTodo, index, markCompleted, removeTodo} = this.props;
+
+const Todo = ({todo,getTodoEditId,todoEditId,onEditTodo, index, markCompleted, removeTodo}) => {
+
+  const [ name, setName ] = useState('');
+  const { theme } = useContext(ThemeContext);
   const  isEdit= todoEditId===todo.id
-  const { name } = this.state
  
   return (
     <>
-        <li  className={` ${todo.isCheck ? 'completed' : ''}`}>
+        <li  className={` ${todo.isCheck ? 'completed' : ''}`} style={{ backgroundColor: theme.background, color: theme.foreground }}
+        >
             <div className='view'>
               <input className="toggle" 
                      checked={todo.isCheck} 
                      type="checkbox"
                      onChange ={() => markCompleted(todo.id)}
               />
-              <label onDoubleClick={() => getTodoEditId(todo.id)}> {todo.name} </label>
-              <button className='destroy' onClick={ () => removeTodo(todo.id)}></button>
+              <label style={{ backgroundColor: theme.background, color: theme.foreground }} onDoubleClick={() => getTodoEditId(todo.id)}> {todo.name} </label>
+              <button className='destroy' onClick={ () => removeTodo(todo.id)}style={{ backgroundColor: theme.background, color: theme.foreground }}></button>
              </div> 
         </li>
     </>
   );
-  }
 }
-Todo.propTypes = {
-  name: PropTypes.string,
-  addTodo: PropTypes.func,
-};
 
 export default Todo;
