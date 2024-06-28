@@ -1,31 +1,32 @@
 import { render } from '@testing-library/react';
 import './Header.css';
 import React, { useRef } from "react";
-import { useState , useContext ,useImperativeHandle,forwardRef } from 'react';
+import { useState ,useEffect, useContext ,useImperativeHandle,forwardRef } from 'react';
 import {  produce } from 'immer';
 import { ThemeContext  } from '../../Context/Theme-Provider';
+import { connect } from 'react-redux';
+import { addTodo,onEditTodo } from '../../store/actions';
+import { postData } from '../../API/todoData';
+import { editData } from '../../API/todoData';
 
-const Header = forwardRef(({addTodo ,isCheckAll,onEditTodo}, ref) => {
-   const [index, setIndex ] = useState(null);
+const Header = forwardRef(({todoList,addTodo,nameEdit,todoEditId ,isCheckAll,onEditTodo}, ref) => {
    const inputRef = useRef();
    const { theme } = useContext(ThemeContext);
-
    
-   useImperativeHandle(ref, () => ({
-    updateState(Id,Name){
-    setIndex(Id)
-        inputRef.current.value=Name;
-        inputRef.current.focus();
-  }}));
-
+  useEffect(() => {
+    console.log('todoinheader',todoList);
+  });
+  
   const handleSubmit = (e = {}) => {
-     if(e.key === 'Enter' && inputRef.current.value)  {
-      if(index){
+     if(e.key === 'Enter')  {
+      console.log('todoEditId',todoEditId)
+
+      if(todoEditId){
         onEditTodo({
           id: new Date().valueOf(),
           name : inputRef.current.value,
           isCheck: false
-        },index);
+        },todoEditId);
       }else{
         addTodo({
           id: new Date().valueOf(),
@@ -34,7 +35,7 @@ const Header = forwardRef(({addTodo ,isCheckAll,onEditTodo}, ref) => {
         });
       }
       inputRef.current.value='';
-      setIndex(null);
+      //setIndex(null);
     }
   }
 
@@ -48,10 +49,26 @@ const Header = forwardRef(({addTodo ,isCheckAll,onEditTodo}, ref) => {
                  placeholder="What needs to be done?"
                  style={{ backgroundColor: theme.background, color: theme.foreground }}
                  onKeyDown={(e) => handleSubmit(e)}
-                 checked={isCheckAll}
+                 //checked={isCheckAll}
           />
        </header>
   );
 });
+const mapStateToProps = (state) => {
+  return {
+    todoList: state.todos.todoList,
+    todoEditId : state.todos.todoEditId
+  }
+}
 
-export default Header;
+const mapDispatchToProps = {
+  addTodo,
+  onEditTodo,
+}
+export default connect(mapStateToProps,mapDispatchToProps)(Header);
+
+  //  useImperativeHandle(ref, () => ({
+  //       setIndex(todoEditId);
+  //       inputRef.current.value=nameEdit;
+  //       inputRef.current.focus();
+  // }));

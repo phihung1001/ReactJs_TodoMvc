@@ -1,5 +1,12 @@
 import React, { useMemo, useContext } from 'react';
 import { ThemeContext  } from '../../Context/Theme-Provider';
+import {
+    setStatusFilter,
+    clearCompleted,
+    indexTodo
+  } from '../../store/actions'
+
+import { connect } from 'react-redux';
 
 const Footer = ({ status, setStatusFilter , clearCompleted , numOfTodoLeft} ) => {
 
@@ -64,4 +71,17 @@ const FilterBtn =({ title, onClick, link, isActived } ) => {
     )
 }
 
-export default Footer;
+const mapStateToProps = (state) => {
+    return {
+      todoList: state.todos.todoList,
+      isCheckAll : state.todos.isCheckAll,
+      numOfTodoLeft :state.todos.numOfTodoLeft
+    }
+}
+
+const mapDispatchToProps = {
+    setStatusFilter,
+    clearCompleted,
+    indexTodo
+} 
+export default connect(mapStateToProps,mapDispatchToProps)(Footer);
